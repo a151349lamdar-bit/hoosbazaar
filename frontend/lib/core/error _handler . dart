@@ -1,0 +1,55 @@
+// مدیریت و ترجمه خطاها به فارسی
+import 'package:dio/dio.dart';
+import 'fa_strings.dart';
+
+class PersianErrorHandler {
+  // تبدیل هر خطایی به متن فارسی قابل نمایش
+  static String translate(dynamic error) {
+    if (error is DioError) {
+      return _translateDioError(error);
+    }
+    
+    if (error is String) {
+      return error; // اگر خودش فارسی است
+    }
+    
+    return FaStrings.errorTryAgain;
+  }
+  
+  static String _translateDioError(DioError error) {
+    switch (error.type) {
+      case DioErrorType.connectionTimeout:
+      case DioErrorType.sendTimeout:
+      case DioErrorType.receiveTimeout:
+        return 'زمان ارتباط با سرور به پایان رسید';
+        
+      case DioErrorType.connectionError:
+        return FaStrings.errorNetwork;
+        
+      case DioErrorType.badResponse:
+        final status = error.response?.statusCode;
+        if (status == 401) return 'نیاز به ورود مجدد';
+        if (status == 403) return 'دسترسی غیرمجاز';
+        if (status == 404) return 'موردی یافت نشد';
+        if (status == 500) return 'خطای سرور';
+        return 'خطا در دریافت اطلاعات (کد: $status)';
+        
+      case DioErrorType.cancel:
+        return 'درخواست لغو شد';
+        
+      default:
+        return FaStrings.errorServer;
+    }
+  }
+  
+  // نمایش اسنک‌بار خطا
+  static void showSnackBar(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: AppConstants.errorColor,
+        duration: Duration(seconds: 3),
+      ),
+    );
+  }
+}
