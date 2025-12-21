@@ -1,4 +1,11 @@
-// مدیریت مسیرهای برنامه
+GoRoute(
+  path: '/create-ad',
+  builder: (context, state) => CreateAdScreen(),
+),
+GoRoute(
+  path: '/create-shop',
+  builder: (context, state) => CreateShopScreen(),
+),// مدیریت مسیرهای برنامه
 import 'package:go_router/go_router.dart';
 import '../features/auth/presentation/screens/login_screen.dart';
 import '../features/auth/presentation/screens/verify_screen.dart';
