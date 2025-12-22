@@ -1,0 +1,4 @@
+// مدل داده فروشگاه
+class ShopModel {
+  // مشابه ShopEntity - برای تبدیل JSON
+}
