@@ -1,32 +1,27 @@
 name: hoosbazaar
 description: بازار هوشمند ایرانی - نسخه بازساخته
-publish_to: 'none' # از انتشار عمومی جلوگیری می‌کند
+publish_to: 'none'
 version: 1.0.0+1
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
 
 dependencies:
-import '../features/ads/presentation/screens/create_ad_screen.dart';
-import '../features/shop/presentation/screens/create_shop_screen.dart';
-import '../features/shop/presentation/screens/shop_dashboard_screen.dart';
-import '../features/shop/presentation/screens/shop_products_screen.dart';
-import '../features/shop/presentation/screens/shop_preview_screen.dart';
   flutter:
     sdk: flutter
 
   # وابستگی‌های اصلی - UI و State Management
   cupertino_icons: ^1.0.6
-  provider: ^6.1.1 # مدیریت حالت
+  provider: ^6.1.1
   flutter_localizations:
-    sdk: flutter # برای پشتیبانی از فارسی
+    sdk: flutter
 
   # ناوبری و صفحات
-  go_router: ^13.0.6 # مسیریابی پیشرفته
+  go_router: ^13.0.6
 
   # شبکه و API
-  dio: ^5.4.3 # برای فراخوانی API
-  socket_io_client: ^2.0.3 # برای چت آنلاین
+  dio: ^5.4.3
+  socket_io_client: ^2.0.3
 
   # احراز هویت و امنیت
   flutter_secure_storage: ^9.0.0
@@ -46,7 +41,7 @@ import '../features/shop/presentation/screens/shop_preview_screen.dart';
   shamsi_date: ^2.1.1
 
   # پرداخت
-  flutter_inappwebview: ^6.1.5 # برای درگاه پرداخت
+  flutter_inappwebview: ^6.1.5
 
   # نقشه و مکان
   geolocator: ^11.0.1
@@ -64,7 +59,6 @@ dev_dependencies:
 flutter:
   uses-material-design: true
 
-  # فونت‌های فارسی - بسیار مهم
   fonts:
     - family: Vazir
       fonts:
@@ -78,7 +72,6 @@ flutter:
         - asset: assets/fonts/iranyekan_bold.ttf
           weight: 700
 
-  # آیکون اپ
   assets:
     - assets/images/
     - assets/icons/
