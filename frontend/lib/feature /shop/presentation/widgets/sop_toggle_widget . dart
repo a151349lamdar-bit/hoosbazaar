@@ -1,0 +1,75 @@
+// سوئیچ حالت ساده/پیشرفته فروشگاه
+import 'package:flutter/material.dart';
+import '../../../../core/app_constants.dart';
+
+class ShopToggleWidget extends StatelessWidget {
+  final String currentMode;
+  final Function(String) onModeChanged;
+  
+  const ShopToggleWidget({
+    super.key,
+    required this.currentMode,
+    required this.onModeChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: Colors.grey[100],
+        borderRadius: BorderRadius.circular(25),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // حالت ساده
+          _buildButton(
+            mode: 'simple',
+            icon: Icons.dashboard_rounded,
+            label: 'ساده',
+          ),
+          
+          // حالت پیشرفته
+          _buildButton(
+            mode: 'advanced',
+            icon: Icons.tune_rounded,
+            label: 'پیشرفته',
+          ),
+        ],
+      ),
+    );
+  }
+  
+  Widget _buildButton({
+    required String mode,
+    required IconData icon,
+    required String label,
+  }) {
+    final isActive = currentMode == mode;
+    
+    return GestureDetector(
+      onTap: () => onModeChanged(mode),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: isActive ? AppConstants.primaryColor : Colors.transparent,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, color: isActive ? Colors.white : Colors.grey, size: 20),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: TextStyle(
+                color: isActive ? Colors.white : Colors.grey,
+                fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
