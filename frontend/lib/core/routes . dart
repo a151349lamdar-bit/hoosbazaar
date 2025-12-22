@@ -65,3 +65,36 @@ class AppRoutes {
   static void goToHome(BuildContext context) => context.go(home);
   static void goToProfile(BuildContext context) => context.go(profile);
 }
+// بعد از routeهای موجود، این‌ها را اضافه کن:
+// صفحه ثبت آگهی
+GoRoute(
+  path: '/ads/create',
+  builder: (context, state) => const CreateAdScreen(),
+),
+
+// صفحه ایجاد فروشگاه
+GoRoute(
+  path: '/shop/create',
+  builder: (context, state) => const CreateShopScreen(),
+),
+
+// داشبورد فروشگاه
+GoRoute(
+  path: '/shop/dashboard',
+  builder: (context, state) => const ShopDashboardScreen(),
+),
+
+// محصولات فروشگاه
+GoRoute(
+  path: '/shop/products',
+  builder: (context, state) => const ShopProductsScreen(),
+),
+
+// پیش‌نمایش فروشگاه
+GoRoute(
+  path: '/shop/:id',
+  builder: (context, state) {
+    final shopId = state.pathParameters['id'] ?? '';
+    return ShopPreviewScreen(shopId: shopId);
+  },
+),
