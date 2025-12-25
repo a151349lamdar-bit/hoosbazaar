@@ -1,99 +1,266 @@
-// کلاینت HTTP برای API
+import 'dart:io';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'api_endpoints.dart';
 import 'app_constants.dart';
-import 'fa_strings.dart';
 import 'error_handler.dart';
 
 class DioClient {
   late Dio _dio;
+  final SharedPreferences _prefs;
   
-  DioClient() {
-    _dio = Dio(BaseOptions(
-      baseUrl: AppConstants.apiBaseUrl + AppConstants.apiVersion,
-      connectTimeout: const Duration(seconds: 30),
-      receiveTimeout: const Duration(seconds: 30),
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Accept-Language': 'fa-IR',
-      },
-    ));
+  DioClient(this._prefs) {
+    _dio = Dio(
+      BaseOptions(
+        baseUrl: ApiEndpoints.getBaseUrl(),
+        connectTimeout: const Duration(seconds: 30),
+        receiveTimeout: const Duration(seconds: 30),
+        sendTimeout: const Duration(seconds: 30),
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'User-Agent': 'HoosBazaar-Mobile/${AppConstants.appVersion}',
+        },
+      ),
+    );
     
-    // افزودن interceptors
+    // افزودن interceptorها
     _dio.interceptors.add(
       InterceptorsWrapper(
-        onRequest: (options, handler) {
-          // اینجا می‌توانی توکن را اضافه کنی
-          // options.headers['Authorization'] = 'Bearer $token';
-          print('🚀 درخواست: ${options.method} ${options.path}');
-          return handler.next(options);
-        },
-        onError: (error, handler) {
-          print('❌ خطا: ${error.message}');
-          return handler.next(error);
-        },
+        onRequest: _onRequest,
+        onResponse: _onResponse,
+        onError: _onError,
+      ),
+    );
+    
+    // افزودن interceptor لاگ برای حالت توسعه
+    if (!kReleaseMode) {
+      _dio.interceptors.add(
+        LogInterceptor(
+          requestBody: true,
+          responseBody: true,
+          logPrint: (object) => debugPrint(object.toString()),
+        ),
+      );
+    }
+  }
+  
+  Future<void> _onRequest(
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) async {
+    // افزودن توکن احراز هویت
+    final token = _prefs.getString(AppConstants.authTokenKey);
+    if (token != null && token.isNotEmpty) {
+      options.headers['Authorization'] = 'Bearer $token';
+    }
+    
+    // افزودن زبان
+    options.headers['Accept-Language'] = 'fa-IR';
+    
+    // افزودن اطلاعات دستگاه
+    options.headers['X-Device-Id'] = 'mobile-app';
+    options.headers['X-App-Version'] = AppConstants.appVersion;
+    
+    handler.next(options);
+  }
+  
+  void _onResponse(
+    Response response,
+    ResponseInterceptorHandler handler,
+  ) {
+    // پردازش پاسخ استاندارد
+    if (response.data is Map && response.data.containsKey('success')) {
+      if (!response.data['success']) {
+        handler.reject(
+          DioException(
+            requestOptions: response.requestOptions,
+            response: response,
+            error: response.data['message'] ?? 'خطای نامشخص',
+          ),
+        );
+        return;
+      }
+    }
+    
+    handler.next(response);
+  }
+  
+  Future<void> _onError(
+    DioException err,
+    ErrorInterceptorHandler handler,
+  ) async {
+    // مدیریت خطای 401 (عدم احراز هویت)
+    if (err.response?.statusCode == 401) {
+      try {
+        // تلاش برای رفرش توکن
+        final refreshToken = _prefs.getString(AppConstants.refreshTokenKey);
+        if (refreshToken != null) {
+          final response = await _dio.post(
+            ApiEndpoints.refreshToken,
+            data: {'refresh_token': refreshToken},
+          );
+          
+          if (response.data['success']) {
+            final newToken = response.data['data']['token'];
+            final newRefreshToken = response.data['data']['refresh_token'];
+            
+            await _prefs.setString(AppConstants.authTokenKey, newToken);
+            await _prefs.setString(AppConstants.refreshTokenKey, newRefreshToken);
+            
+            // تکرار درخواست اصلی
+            err.requestOptions.headers['Authorization'] = 'Bearer $newToken';
+            final retryResponse = await _dio.request(
+              err.requestOptions.path,
+              data: err.requestOptions.data,
+              queryParameters: err.requestOptions.queryParameters,
+              options: Options(
+                method: err.requestOptions.method,
+                headers: err.requestOptions.headers,
+              ),
+            );
+            
+            handler.resolve(retryResponse);
+            return;
+          }
+        }
+      } catch (refreshError) {
+        // خطا در رفرش توکن - خروج کاربر
+        await _prefs.remove(AppConstants.authTokenKey);
+        await _prefs.remove(AppConstants.refreshTokenKey);
+        await _prefs.remove(AppConstants.userDataKey);
+        
+        // ارسال رویداد برای ناوبری به صفحه لاگین
+        // در اینجا می‌توانید از Provider یا EventBus استفاده کنید
+      }
+    }
+    
+    // مدیریت خطای شبکه
+    if (err.type == DioExceptionType.connectionTimeout ||
+        err.type == DioExceptionType.receiveTimeout ||
+        err.type == DioExceptionType.sendTimeout ||
+        err.type == DioExceptionType.connectionError) {
+      handler.reject(
+        DioException(
+          requestOptions: err.requestOptions,
+          error: 'خطای اتصال به اینترنت',
+        ),
+      );
+      return;
+    }
+    
+    // مدیریت خطای سرور
+    if (err.response?.statusCode != null &&
+        err.response!.statusCode! >= 500) {
+      handler.reject(
+        DioException(
+          requestOptions: err.requestOptions,
+          error: 'خطای سرور، لطفاً بعداً تلاش کنید',
+        ),
+      );
+      return;
+    }
+    
+    handler.next(err);
+  }
+  
+  // متدهای HTTP
+  Future<Response> get(
+    String path, {
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+  }) async {
+    return await _dio.get(
+      path,
+      queryParameters: queryParameters,
+      options: options,
+    );
+  }
+  
+  Future<Response> post(
+    String path, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+  }) async {
+    return await _dio.post(
+      path,
+      data: data,
+      queryParameters: queryParameters,
+      options: options,
+    );
+  }
+  
+  Future<Response> put(
+    String path, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+  }) async {
+    return await _dio.put(
+      path,
+      data: data,
+      queryParameters: queryParameters,
+      options: options,
+    );
+  }
+  
+  Future<Response> patch(
+    String path, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+  }) async {
+    return await _dio.patch(
+      path,
+      data: data,
+      queryParameters: queryParameters,
+      options: options,
+    );
+  }
+  
+  Future<Response> delete(
+    String path, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+  }) async {
+    return await _dio.delete(
+      path,
+      data: data,
+      queryParameters: queryParameters,
+      options: options,
+    );
+  }
+  
+  // آپلود فایل
+  Future<Response> uploadFile(
+    String path,
+    String filePath, {
+    String fieldName = 'file',
+    Map<String, dynamic>? extraData,
+  }) async {
+    final formData = FormData.fromMap({
+      fieldName: await MultipartFile.fromFile(filePath),
+      if (extraData != null) ...extraData,
+    });
+    
+    return await _dio.post(
+      path,
+      data: formData,
+      options: Options(
+        contentType: 'multipart/form-data',
       ),
     );
   }
   
-  // GET
-  Future<Response> get(String path, {Map<String, dynamic>? params}) async {
-    try {
-      final response = await _dio.get(path, queryParameters: params);
-      return response;
-    } catch (e) {
-      throw PersianErrorHandler.translate(e);
-    }
-  }
-  
-  // POST
-  Future<Response> post(String path, {dynamic data}) async {
-    try {
-      final response = await _dio.post(path, data: data);
-      return response;
-    } catch (e) {
-      throw PersianErrorHandler.translate(e);
-    }
-  }
-  
-  // PUT
-  Future<Response> put(String path, {dynamic data}) async {
-    try {
-      final response = await _dio.put(path, data: data);
-      return response;
-    } catch (e) {
-      throw PersianErrorHandler.translate(e);
-    }
-  }
-  
-  // DELETE
-  Future<Response> delete(String path) async {
-    try {
-      final response = await _dio.delete(path);
-      return response;
-    } catch (e) {
-      throw PersianErrorHandler.translate(e);
-    }
-  }
-  
-  // آپلود فایل
-  Future<Response> upload(String path, String filePath) async {
-    try {
-      final formData = FormData.fromMap({
-        'file': await MultipartFile.fromFile(filePath),
-      });
-      
-      final response = await _dio.post(
-        path, 
-        data: formData,
-        options: Options(
-          contentType: 'multipart/form-data',
-        ),
-      );
-      
-      return response;
-    } catch (e) {
-      throw PersianErrorHandler.translate(e);
-    }
+  // دانلود فایل
+  Future<void> downloadFile(
+    String url,
+    String savePath, {
+    ProgressCallback? onProgress,
+  }) async {
+    await _dio.download(url, savePath, onReceiveProgress: onProgress);
   }
 }
