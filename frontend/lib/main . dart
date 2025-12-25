@@ -1,5 +1,8 @@
-            import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+import 'core/app_config.dart';
+import 'screens/add_real_estate_screen.dart';
 
 void main() {
   runApp(
@@ -14,7 +17,7 @@ class HoosBazaarApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'هوش بازار',
+      title: AppConfig.appName,
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.blue,
@@ -41,33 +44,147 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text('🏪 هوش بازار'),
         centerTitle: true,
+        backgroundColor: Colors.blue[800],
+        elevation: 10,
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.shopping_cart, size: 80, color: Colors.blue),
-            SizedBox(height: 20),
-            Text(
-              'به هوش بازار خوش آمدید',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Colors.blue[50]!,
+              Colors.white,
+            ],
+          ),
+        ),
+        child: Center(
+          child: SingleChildScrollView(
+            padding: EdgeInsets.all(20),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // لوگو
+                Container(
+                  width: 120,
+                  height: 120,
+                  decoration: BoxDecoration(
+                    color: Colors.blue[100],
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.smart_toy,
+                    size: 60,
+                    color: Colors.blue[800],
+                  ),
+                ),
+                
+                SizedBox(height: 30),
+                
+                // عنوان
+                Text(
+                  'هوش بازار',
+                  style: TextStyle(
+                    fontSize: 36,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blue[800],
+                  ),
+                ),
+                
+                SizedBox(height: 10),
+                
+                // زیرعنوان
+                Text(
+                  'پلتفرم هوشمند خرید و فروش',
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: Colors.grey[600],
+                  ),
+                ),
+                
+                SizedBox(height: 40),
+                
+                // کارت ویژگی‌ها
+                Card(
+                  elevation: 6,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Column(
+                      children: [
+                        ListTile(
+                          leading: Icon(Icons.psychology, color: Colors.green),
+                          title: Text('قیمت‌گذاری هوشمند'),
+                          subtitle: Text('AI قیمت منصفانه پیشنهاد می‌دهد'),
+                        ),
+                        ListTile(
+                          leading: Icon(Icons.analytics, color: Colors.blue),
+                          title: Text('تحلیل بازار'),
+                          subtitle: Text('بررسی هزاران آگهی مشابه'),
+                        ),
+                        ListTile(
+                          leading: Icon(Icons.security, color: Colors.orange),
+                          title: Text('امنیت بالا'),
+                          subtitle: Text('اطلاعات شما محافظت می‌شود'),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                
+                SizedBox(height: 40),
+                
+                // دکمه‌های اصلی
+                Column(
+                  children: [
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => AddRealEstateScreen(),
+                          ),
+                        );
+                      },
+                      icon: Icon(Icons.add_home),
+                      label: Text('ثبت آگهی ملک'),
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: Size(double.infinity, 55),
+                        backgroundColor: Colors.green,
+                      ),
+                    ),
+                    
+                    SizedBox(height: 15),
+                    
+                    OutlinedButton.icon(
+                      onPressed: () {
+                        // بعداً اضافه می‌کنیم
+                      },
+                      icon: Icon(Icons.search),
+                      label: Text('جستجوی آگهی‌ها'),
+                      style: OutlinedButton.styleFrom(
+                        minimumSize: Size(double.infinity, 55),
+                        side: BorderSide(color: Colors.blue),
+                      ),
+                    ),
+                  ],
+                ),
+                
+                SizedBox(height: 30),
+                
+                // اطلاعات نسخه
+                Text(
+                  'نسخه ${AppConfig.version}',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey[500],
+                  ),
+                ),
+              ],
             ),
-            SizedBox(height: 10),
-            Text(
-              'پلتفرم هوشمند خرید و فروش',
-              style: TextStyle(fontSize: 16, color: Colors.grey),
-            ),
-            SizedBox(height: 30),
-            ElevatedButton(
-              onPressed: () {
-                // بعداً اضافه می‌کنیم
-              },
-              child: Text('شروع کنید'),
-              style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );
