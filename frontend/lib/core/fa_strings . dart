@@ -1,96 +1,83 @@
-// کلیه متون فارسی برنامه - نسخه ۱.۰
+// رشته‌های متنی فارسی برنامه
 class FaStrings {
-  // ----- عمومی -----
-  static const String appName = 'هوش‌بازار';
-  static const String slogan = 'بازار هوشمند ایرانیان';
+  // عمومی
+  static const String appName = 'هوش بازار';
+  static const String loading = 'در حال بارگذاری...';
+  static const String pleaseWait = 'لطفاً منتظر بمانید';
+  static const String retry = 'تلاش مجدد';
+  static const String cancel = 'انصراف';
+  static const String confirm = 'تأیید';
+  static const String save = 'ذخیره';
+  static const String edit = 'ویرایش';
+  static const String delete = 'حذف';
+  static const String search = 'جستجو';
+  static const String filter = 'فیلتر';
+  static const String sort = 'مرتب‌سازی';
+  static const String viewAll = 'مشاهده همه';
+  static const String showMore = 'نمایش بیشتر';
+  static const String showLess = 'نمایش کمتر';
+  static const String done = 'انجام شد';
+  static const String next = 'بعدی';
+  static const String previous = 'قبلی';
+  static const String back = 'بازگشت';
   
-  // ----- دکمه‌ها -----
-  static const String btnContinue = 'ادامه';
-  static const String btnCancel = 'انصراف';
-  static const String btnSave = 'ذخیره';
-  static const String btnEdit = 'ویرایش';
-  static const String btnDelete = 'حذف';
-  static const String btnSearch = 'جستجو';
-  static const String btnSend = 'ارسال';
-  static const String btnLogin = 'ورود';
-  static const String btnRegister = 'ثبت‌نام';
-  static const String btnAddAd = 'ثبت آگهی جدید';
-  static const String btnAddShop = 'ایجاد فروشگاه';
+  // صفحات اصلی
+  static const String home = 'خانه';
+  static const String categories = 'دسته‌بندی‌ها';
+  static const String myAds = 'آگهی‌های من';
+  static const String favorites = 'علاقه‌مندی‌ها';
+  static const String profile = 'پروفایل';
+  static const String settings = 'تنظیمات';
+  static const String notifications = 'اعلان‌ها';
+  static const String messages = 'پیام‌ها';
   
-  // ----- صفحات اصلی -----
-  static const String tabHome = 'خانه';
-  static const String tabSearch = 'جستجو';
-  static const String tabAds = 'آگهی‌های من';
-  static const String tabChat = 'گفتگو';
-  static const String tabProfile = 'پروفایل';
-  static const String tabShop = 'فروشگاه من';
+  // احراز هویت
+  static const String login = 'ورود';
+  static const String register = 'ثبت‌نام';
+  static const String logout = 'خروج';
+  static const String loginToAccount = 'ورود به حساب کاربری';
+  static const String createAccount = 'ایجاد حساب کاربری';
+  static const String email = 'ایمیل';
+  static const String phone = 'تلفن همراه';
+  static const String password = 'رمز عبور';
+  static const String confirmPassword = 'تکرار رمز عبور';
+  static const String forgotPassword = 'فراموشی رمز عبور';
+  static const String resetPassword = 'بازیابی رمز عبور';
+  static const String sendCode = 'ارسال کد';
+  static const String verificationCode = 'کد تأیید';
+  static const String resendCode = 'ارسال مجدد کد';
+  static const String loginWithGoogle = 'ورود با گوگل';
+  static const String loginWithApple = 'ورود با اپل';
   
-  // ----- فرم‌ها -----
-  static const String hintSearch = 'کالا، خدمات یا فروشگاه...';
-  static const String hintAdTitle = 'عنوان آگهی (مثال: پراید ۱۴۰۲ صفر)';
-  static const String hintDescription = 'توضیحات کامل و شفاف';
-  static const String hintPrice = 'قیمت (تومان)';
-  static const String hintPhone = '۰۹۱۲۳۴۵۶۷۸۹';
-  static const String hintName = 'نام و نام خانوادگی';
-  static const String hintCity = 'شهر خود را انتخاب کنید';
+  // آگهی‌ها
+  static const String ads = 'آگهی‌ها';
+  static const String createAd = 'ثبت آگهی';
+  static const String editAd = 'ویرایش آگهی';
+  static const String adTitle = 'عنوان آگهی';
+  static const String adDescription = 'توضیحات آگهی';
+  static const String adPrice = 'قیمت';
+  static const String adCategory = 'دسته‌بندی';
+  static const String adLocation = 'موقعیت مکانی';
+  static const String adImages = 'عکس‌ها';
+  static const String addImage = 'افزودن عکس';
+  static const String maxImages = 'حداکثر ۱۰ عکس';
+  static const String publishAd = 'انتشار آگهی';
+  static const String updateAd = 'بروزرسانی آگهی';
+  static const String deleteAd = 'حذف آگهی';
+  static const String deleteAdConfirm = 'آیا از حذف این آگهی مطمئنید؟';
+  static const String adStatus = 'وضعیت آگهی';
+  static const String activeAds = 'آگهی‌های فعال';
+  static const String pendingAds = 'آگهی‌های در انتظار';
+  static const String expiredAds = 'آگهی‌های منقضی';
+  static const String soldAds = 'آگهی‌های فروخته شده';
   
-  // ----- اعتبارسنجی -----
-  static const String validationRequired = 'پر کردن این فیلد ضروری است';
-  static const String validationPhoneInvalid = 'شماره موبایل معتبر نیست';
-  static const String validationMinLength = 'حداقل {length} کاراکتر لازم است';
-  static const String validationPrice = 'لطفا قیمت معتبر وارد کنید';
-  
-  // ----- پیام‌های موفقیت -----
-  static const String successRegister = 'ثبت‌نام با موفقیت انجام شد';
-  static const String successLogin = 'خوش آمدید!';
-  static const String successAdSaved = 'آگهی شما ثبت شد';
-  static const String successMessageSent = 'پیام ارسال شد';
-  static const String successProfileUpdated = 'پروفایل بروزرسانی شد';
-  
-  // ----- خطاها -----
-  static const String errorNetwork = 'اتصال اینترنت برقرار نیست';
-  static const String errorServer = 'خطا در ارتباط با سرور';
-  static const String errorUnknown = 'خطای ناشناخته';
-  static const String errorAuthFailed = 'شماره یا کد تایید نادرست است';
-  static const String errorInvalidCode = 'کد تأیید نادرست است';
-  static const String errorTryAgain = 'لطفا مجدد تلاش کنید';
-  
-  // ----- وضعیت‌ها -----
-  static const String statusLoading = 'در حال بارگذاری...';
-  static const String statusUploading = 'در حال آپلود...';
-  static const String statusProcessing = 'در حال پردازش...';
-  
-  // ----- دسته‌بندی‌ها -----
-  static const String categoryAll = 'همه';
-  static const String categoryCars = 'خودرو';
-  static const String categoryRealEstate = 'املاک';
-  static const String categoryDigital = 'کالای دیجیتال';
-  static const String categoryHome = 'وسایل خانه';
-  static const String categoryServices = 'خدمات';
-  
-  // ----- تاریخ و زمان -----
-  static String timeAgo(int minutes) {
-    if (minutes < 1) return 'همین الان';
-    if (minutes < 60) return '$minutes دقیقه قبل';
-    if (minutes < 1440) return '${(minutes / 60).floor()} ساعت قبل';
-    return '${(minutes / 1440).floor()} روز قبل';
-  }
-  
-  // ----- قیمت -----
-  static String formatPrice(int price) {
-    // تبدیل ۱۰۰۰۰۰۰ به "۱,۰۰۰,۰۰۰ تومان"
-    final priceStr = price.toString();
-    String result = '';
-    int count = 0;
-    
-    for (int i = priceStr.length - 1; i >= 0; i--) {
-      count++;
-      result = priceStr[i] + result;
-      if (count % 3 == 0 && i != 0) {
-        result = ',$result';
-      }
-    }
-    
-    return '$result تومان';
-  }
-}
+  // قیمت‌گذاری هوشمند
+  static const String smartPricing = 'قیمت‌گذاری هوشمند';
+  static const String aiPricing = 'قیمت‌گذاری AI';
+  static const String enableAIPricing = 'فعال‌سازی قیمت‌گذاری هوشمند';
+  static const String aiSuggestedPrice = 'قیمت پیشنهادی هوش مصنوعی';
+  static const String priceAnalysis = 'تحلیل قیمت';
+  static const String marketTrend = 'روند بازار';
+  static const String similarItems = 'آیتم‌های مشابه';
+  static const String confidenceLevel = 'سطح اطمینان';
+  static const String priceRange = '
