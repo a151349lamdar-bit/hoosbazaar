@@ -1,0 +1,18 @@
+class AppConfig {
+  static const String appName = 'هوش بازار';
+  static const String version = '1.0.0';
+  
+  static const List<String> categories = [
+    'real_estate',
+    'car',
+    'mobile',
+    'electronics',
+  ];
+  
+  static Map<String, String> categoryNames = {
+    'real_estate': 'املاک',
+    'car': 'خودرو',
+    'mobile': 'موبایل',
+    'electronics': 'الکترونیکی',
+  };
+}
