@@ -1,107 +1,52 @@
-// سرویس ارتباط با API سرور واقعی
+import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'api_endpoints.dart';
 import 'error_handler.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'dio_client.dart';
 
 class ApiService {
-  late Dio _dio;
-  static final ApiService _instance = ApiService._internal();
+  final DioClient _dioClient;
   
-  factory ApiService() => _instance;
+  ApiService(this._dioClient);
   
-  ApiService._internal() {
-    _dio = Dio(BaseOptions(
-      baseUrl: ApiEndpoints.baseUrl,
-      connectTimeout: const Duration(seconds: 30),
-      receiveTimeout: const Duration(seconds: 30),
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Accept-Language': 'fa-IR',
-      },
-    ));
-    
-    _setupInterceptors();
-  }
-  
-  void _setupInterceptors() {
-    _dio.interceptors.add(InterceptorsWrapper(
-      onRequest: (options, handler) async {
-        // افزودن توکن به هدر
-        final prefs = await SharedPreferences.getInstance();
-        final token = prefs.getString('auth_token');
-        if (token != null) {
-          options.headers['Authorization'] = 'Bearer $token';
-        }
-        
-        print('📤 ارسال درخواست: ${options.method} ${options.path}');
-        return handler.next(options);
-      },
-      onResponse: (response, handler) {
-        print('📥 دریافت پاسخ: ${response.statusCode}');
-        return handler.next(response);
-      },
-      onError: (error, handler) {
-        print('❌ خطای API: ${error.response?.statusCode}');
-        
-        // بررسی خطای 401 (عدم احراز هویت)
-        if (error.response?.statusCode == 401) {
-          // TODO: رفرش توکن یا هدایت به صفحه لاگین
-        }
-        
-        return handler.next(error);
-      },
-    ));
-  }
-  
-  // احراز هویت
-  Future<Map<String, dynamic>> sendOtp(String phone) async {
+  // 🔐 احراز هویت
+  Future<Map<String, dynamic>> login(String email, String password) async {
     try {
-      final response = await _dio.post(
-        ApiEndpoints.sendOtp,
-        data: {'phone': phone},
+      final response = await _dioClient.post(
+        ApiEndpoints.login,
+        data: {
+          'email': email,
+          'password': password,
+          'device_name': 'mobile_app',
+        },
       );
       return response.data;
     } catch (e) {
-      throw PersianErrorHandler.translate(e);
+      throw ErrorHandler.handle(e);
     }
   }
   
-  Future<Map<String, dynamic>> verifyOtp(String phone, String code) async {
+  Future<Map<String, dynamic>> register(Map<String, dynamic> userData) async {
     try {
-      final response = await _dio.post(
-        ApiEndpoints.verifyOtp,
-        data: {'phone': phone, 'code': code},
-      );
-      
-      // ذخیره توکن
-      if (response.data['token'] != null) {
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('auth_token', response.data['token']);
-        await prefs.setString('refresh_token', response.data['refresh_token']);
-        await prefs.setString('user_id', response.data['user_id']);
-      }
-      
-      return response.data;
-    } catch (e) {
-      throw PersianErrorHandler.translate(e);
-    }
-  }
-  
-  // آگهی‌ها
-  Future<Map<String, dynamic>> createAd(Map<String, dynamic> adData) async {
-    try {
-      final response = await _dio.post(
-        ApiEndpoints.ads,
-        data: adData,
+      final response = await _dioClient.post(
+        ApiEndpoints.register,
+        data: userData,
       );
       return response.data;
     } catch (e) {
-      throw PersianErrorHandler.translate(e);
+      throw ErrorHandler.handle(e);
     }
   }
   
+  Future<void> logout() async {
+    try {
+      await _dioClient.post(ApiEndpoints.logout);
+    } catch (e) {
+      throw ErrorHandler.handle(e);
+    }
+  }
+  
+  // 📊 آگهی‌ها
   Future<List<dynamic>> getAds({
     int page = 1,
     int limit = 20,
@@ -120,78 +65,188 @@ class ApiService {
         if (maxPrice != null) 'max_price': maxPrice,
       };
       
-      final response = await _dio.get(
-        ApiEndpoints.ads,
+      final response = await _dioClient.get(
+        ApiEndpoints.adsList,
         queryParameters: params,
       );
       return response.data['data'];
     } catch (e) {
-      throw PersianErrorHandler.translate(e);
+      throw ErrorHandler.handle(e);
     }
   }
   
-  // آپلود عکس
-  Future<String> uploadImage(String filePath) async {
+  Future<Map<String, dynamic>> createAd(Map<String, dynamic> adData) async {
+    try {
+      final response = await _dioClient.post(
+        ApiEndpoints.createAd,
+        data: adData,
+      );
+      return response.data;
+    } catch (e) {
+      throw ErrorHandler.handle(e);
+    }
+  }
+  
+  Future<Map<String, dynamic>> getAdDetail(String adId) async {
+    try {
+      final response = await _dioClient.get(
+        '${ApiEndpoints.adDetail}/$adId',
+      );
+      return response.data;
+    } catch (e) {
+      throw ErrorHandler.handle(e);
+    }
+  }
+  
+  Future<List<dynamic>> getMyAds() async {
+    try {
+      final response = await _dioClient.get(ApiEndpoints.myAds);
+      return response.data['data'];
+    } catch (e) {
+      throw ErrorHandler.handle(e);
+    }
+  }
+  
+  // 🤖 قیمت‌گذاری هوشمند
+  Future<Map<String, dynamic>> getAIPriceSuggestion({
+    required String category,
+    required Map<String, dynamic> itemDetails,
+    required String location,
+  }) async {
+    try {
+      final response = await _dioClient.post(
+        ApiEndpoints.aiPricing,
+        data: {
+          'category': category,
+          'item_details': itemDetails,
+          'location': location,
+          'timestamp': DateTime.now().toIso8601String(),
+        },
+      );
+      return response.data;
+    } catch (e) {
+      throw ErrorHandler.handle(e);
+    }
+  }
+  
+  Future<Map<String, dynamic>> getMarketAnalysis(String category) async {
+    try {
+      final response = await _dioClient.get(
+        ApiEndpoints.marketAnalysis,
+        queryParameters: {'category': category},
+      );
+      return response.data;
+    } catch (e) {
+      throw ErrorHandler.handle(e);
+    }
+  }
+  
+  // 📁 آپلود فایل
+  Future<String> uploadImage(String imagePath) async {
     try {
       final formData = FormData.fromMap({
-        'file': await MultipartFile.fromFile(filePath),
+        'image': await MultipartFile.fromFile(imagePath),
       });
       
-      final response = await _dio.post(
-        ApiEndpoints.uploadAdImage,
+      final response = await _dioClient.post(
+        ApiEndpoints.uploadImage,
         data: formData,
-        options: Options(contentType: 'multipart/form-data'),
       );
-      
       return response.data['url'];
     } catch (e) {
-      throw PersianErrorHandler.translate(e);
+      throw ErrorHandler.handle(e);
     }
   }
   
-  // فروشگاه
-  Future<Map<String, dynamic>> createShop(Map<String, dynamic> shopData) async {
+  Future<List<String>> uploadMultipleImages(List<String> imagePaths) async {
     try {
-      final response = await _dio.post(
-        ApiEndpoints.shops,
-        data: shopData,
+      final formData = FormData();
+      
+      for (var i = 0; i < imagePaths.length; i++) {
+        formData.files.add(MapEntry(
+          'images',
+          await MultipartFile.fromFile(imagePaths[i]),
+        ));
+      }
+      
+      final response = await _dioClient.post(
+        ApiEndpoints.uploadMultiple,
+        data: formData,
+      );
+      return List<String>.from(response.data['urls']);
+    } catch (e) {
+      throw ErrorHandler.handle(e);
+    }
+  }
+  
+  // 👤 پروفایل کاربر
+  Future<Map<String, dynamic>> getUserProfile() async {
+    try {
+      final response = await _dioClient.get(ApiEndpoints.userProfile);
+      return response.data;
+    } catch (e) {
+      throw ErrorHandler.handle(e);
+    }
+  }
+  
+  Future<Map<String, dynamic>> updateUserProfile(Map<String, dynamic> profileData) async {
+    try {
+      final response = await _dioClient.put(
+        ApiEndpoints.updateProfile,
+        data: profileData,
       );
       return response.data;
     } catch (e) {
-      throw PersianErrorHandler.translate(e);
+      throw ErrorHandler.handle(e);
     }
   }
   
-  Future<Map<String, dynamic>> getMyShop() async {
+  // 📊 آمار
+  Future<Map<String, dynamic>> getUserStats() async {
     try {
-      final response = await _dio.get(ApiEndpoints.myShop);
+      final response = await _dioClient.get(ApiEndpoints.userStats);
       return response.data;
     } catch (e) {
-      throw PersianErrorHandler.translate(e);
+      throw ErrorHandler.handle(e);
     }
   }
   
-  // جستجو
-  Future<List<dynamic>> search(String query) async {
+  // 🔍 جستجو
+  Future<List<dynamic>> searchAds(String query, {int page = 1}) async {
     try {
-      final response = await _dio.get(
+      final response = await _dioClient.get(
         ApiEndpoints.searchAds,
-        queryParameters: {'q': query},
+        queryParameters: {
+          'q': query,
+          'page': page,
+          'limit': 20,
+        },
       );
       return response.data['data'];
     } catch (e) {
-      throw PersianErrorHandler.translate(e);
+      throw ErrorHandler.handle(e);
     }
   }
   
-  // وضعیت اتصال
-  Future<bool> checkConnection() async {
+  // 📱 تنظیمات
+  Future<Map<String, dynamic>> getAppSettings() async {
     try {
-      await _dio.get('${ApiEndpoints.baseUrl}/health');
-      return true;
+      final response = await _dioClient.get(ApiEndpoints.appSettings);
+      return response.data;
     } catch (e) {
-      return false;
+      throw ErrorHandler.handle(e);
+    }
+  }
+  
+  Future<Map<String, dynamic>> updateUserSettings(Map<String, dynamic> settings) async {
+    try {
+      final response = await _dioClient.put(
+        ApiEndpoints.userSettings,
+        data: settings,
+      );
+      return response.data;
+    } catch (e) {
+      throw ErrorHandler.handle(e);
     }
   }
 }
-
