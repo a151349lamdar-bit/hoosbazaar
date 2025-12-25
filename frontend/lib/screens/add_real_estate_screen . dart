@@ -1,0 +1,160 @@
+import 'package:flutter/material.dart';
+import '../widgets/smart_pricing_card.dart';
+
+class AddRealEstateScreen extends StatefulWidget {
+  @override
+  _AddRealEstateScreenState createState() => _AddRealEstateScreenState();
+}
+
+class _AddRealEstateScreenState extends State<AddRealEstateScreen> {
+  final _formKey = GlobalKey<FormState>();
+  bool _useSmartPricing = true;
+  String? _selectedType;
+  double _area = 100.0;
+  int _roomCount = 2;
+  double _price = 0.0;
+  
+  final List<Map<String, dynamic>> _estateTypes = [
+    {'value': 'apartment', 'label': 'آپارتمان'},
+    {'value': 'villa', 'label': 'ویلا'},
+    {'value': 'land', 'label': 'زمین'},
+    {'value': 'shop', 'label': 'مغازه'},
+  ];
+  
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('ثبت ملک جدید'),
+        centerTitle: true,
+      ),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.all(20),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // نوع ملک
+              DropdownButtonFormField(
+                value: _selectedType,
+                decoration: InputDecoration(
+                  labelText: 'نوع ملک',
+                  border: OutlineInputBorder(),
+                ),
+                items: _estateTypes.map((type) {
+                  return DropdownMenuItem(
+                    value: type['value'],
+                    child: Text(type['label']),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  setState(() => _selectedType = value);
+                },
+                validator: (value) {
+                  if (value == null) return 'لطفاً نوع ملک را انتخاب کنید';
+                  return null;
+                },
+              ),
+              
+              SizedBox(height: 20),
+              
+              // متراژ
+              TextFormField(
+                decoration: InputDecoration(
+                  labelText: 'متراژ (متر مربع)',
+                  border: OutlineInputBorder(),
+                ),
+                keyboardType: TextInputType.number,
+                initialValue: '100',
+                onChanged: (value) {
+                  _area = double.tryParse(value) ?? 100.0;
+                },
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'لطفاً متراژ را وارد کنید';
+                  }
+                  return null;
+                },
+              ),
+              
+              SizedBox(height: 15),
+              
+              // تعداد اتاق
+              TextFormField(
+                decoration: InputDecoration(
+                  labelText: 'تعداد اتاق',
+                  border: OutlineInputBorder(),
+                ),
+                keyboardType: TextInputType.number,
+                initialValue: '2',
+                onChanged: (value) {
+                  _roomCount = int.tryParse(value) ?? 2;
+                },
+              ),
+              
+              SizedBox(height: 30),
+              
+              // قیمت‌گذاری هوشمند
+              SmartPricingCard(
+                initialValue: _useSmartPricing,
+                onChanged: (value) {
+                  setState(() => _useSmartPricing = value);
+                },
+              ),
+              
+              SizedBox(height: 20),
+              
+              // قیمت
+              TextFormField(
+                decoration: InputDecoration(
+                  labelText: _useSmartPricing ? 
+                    'قیمت پیشنهادی شما (اختیاری)' : 'قیمت (تومان)',
+                  border: OutlineInputBorder(),
+                ),
+                keyboardType: TextInputType.number,
+                onChanged: (value) {
+                  _price = double.tryParse(value) ?? 0.0;
+                },
+                validator: (value) {
+                  if (!_useSmartPricing && (value == null || value.isEmpty)) {
+                    return 'لطفاً قیمت را وارد کنید';
+                  }
+                  return null;
+                },
+              ),
+              
+              SizedBox(height: 30),
+              
+              // دکمه ثبت
+              ElevatedButton(
+                onPressed: _submitForm,
+                child: Text('ثبت آگهی'),
+                style: ElevatedButton.styleFrom(
+                  minimumSize: Size(double.infinity, 50),
+                  backgroundColor: Colors.green,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+  
+  void _submitForm() {
+    if (_formKey.currentState!.validate()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('آگهی با موفقیت ثبت شد'),
+          backgroundColor: Colors.green,
+        ),
+      );
+      
+      // بعد از ۲ ثانیه برگرد به صفحه اصلی
+      Future.delayed(Duration(seconds: 2), () {
+        Navigator.pop(context);
+      });
+    }
+  }
+}
