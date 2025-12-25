@@ -1,0 +1,67 @@
+enum RealEstateType {
+  apartment,
+  villa,
+  land,
+  shop,
+  commercial,
+}
+
+enum TransactionType {
+  buy,
+  rent,
+  mortgage,
+}
+
+class RealEstateAd {
+  final String id;
+  final RealEstateType type;
+  final TransactionType transactionType;
+  final double area;
+  final int roomCount;
+  final int floor;
+  final int totalFloors;
+  final int constructionYear;
+  final String address;
+  final String neighborhood;
+  final double price;
+  final bool hasElevator;
+  final bool hasParking;
+  final bool isSmartPriced;
+  final DateTime createdAt;
+  
+  RealEstateAd({
+    required this.id,
+    required this.type,
+    required this.transactionType,
+    required this.area,
+    required this.roomCount,
+    required this.floor,
+    required this.totalFloors,
+    required this.constructionYear,
+    required this.address,
+    required this.neighborhood,
+    required this.price,
+    this.hasElevator = false,
+    this.hasParking = false,
+    this.isSmartPriced = false,
+    required this.createdAt,
+  });
+  
+  String get typeText {
+    switch (type) {
+      case RealEstateType.apartment: return 'آپارتمان';
+      case RealEstateType.villa: return 'ویلا';
+      case RealEstateType.land: return 'زمین';
+      case RealEstateType.shop: return 'مغازه';
+      case RealEstateType.commercial: return 'تجاری';
+    }
+  }
+  
+  String get transactionText {
+    switch (transactionType) {
+      case TransactionType.buy: return 'خرید';
+      case TransactionType.rent: return 'اجاره';
+      case TransactionType.mortgage: return 'رهن';
+    }
+  }
+}
