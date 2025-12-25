@@ -1,5 +1,5 @@
 name: hoosbazaar
-description: بازار هوشمند ایرانی - نسخه بازساخته
+description: پلتفرم هوشمند خرید و فروش
 publish_to: 'none'
 version: 1.0.0+1
 
@@ -9,47 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
-  # وابستگی‌های اصلی - UI و State Management
-  cupertino_icons: ^1.0.6
   provider: ^6.1.1
-  flutter_localizations:
-    sdk: flutter
-
-  # ناوبری و صفحات
-  go_router: ^13.0.6
-
-  # شبکه و API
-  dio: ^5.4.3
-  socket_io_client: ^2.0.3
-
-  # احراز هویت و امنیت
-  flutter_secure_storage: ^9.0.0
-  local_auth: ^2.1.7
-
-  # مدیریت حالت پایدار
-  shared_preferences: ^2.2.2
-  hive_flutter: ^1.1.0
-
-  # کار با رسانه
-  image_picker: ^1.0.4
-  cached_network_image: ^3.3.0
-  image_cropper: ^5.0.2
-
-  # تاریخ و زمان فارسی
-  jiffy: ^6.2.0
-  shamsi_date: ^2.1.1
-
-  # پرداخت
-  flutter_inappwebview: ^6.1.5
-
-  # نقشه و مکان
-  geolocator: ^11.0.1
-  google_maps_flutter: ^2.5.0
-
-  # تحلیل و آمار
-  firebase_analytics: ^10.8.3
-  firebase_crashlytics: ^3.2.3
+  intl: ^0.18.0
 
 dev_dependencies:
   flutter_test:
@@ -58,20 +19,11 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-
+  
+  assets:
+    - assets/
+  
   fonts:
     - family: Vazir
       fonts:
-        - asset: assets/fonts/Vazir-Regular.ttf
-          weight: 400
-        - asset: assets/fonts/Vazir-Bold.ttf
-          weight: 700
-    - family: IranYekan
-      fonts:
-        - asset: assets/fonts/iranyekan_regular.ttf
-        - asset: assets/fonts/iranyekan_bold.ttf
-          weight: 700
-
-  assets:
-    - assets/images/
-    - assets/icons/
+        - asset: assets/fonts/Vazir.ttf
